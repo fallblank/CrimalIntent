@@ -12,7 +12,7 @@ import java.util.Properties;
 /**
  * Created by fallb on 2015/8/30.
  */
-public class UtilsHelper {
+public class DeviceUtils {
 
 
     public static boolean isXiaomi() {
@@ -25,7 +25,6 @@ public class UtilsHelper {
         try {
             properties.load(new FileInputStream(new File(Environment.getRootDirectory(), "build.prop")));
             if (properties.getProperty("ro.miui.ui.version.name") != null){
-                Log.i("UtilsHelper",properties.getProperty("ro.miui.ui.version.name"));
                 return true;
             }
         } catch (IOException e) {

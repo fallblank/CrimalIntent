@@ -7,13 +7,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.DatePicker;
-import android.widget.Toast;
 
 import com.example.fallb.criminalintent.R;
 
@@ -21,7 +17,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-import utils.UtilsHelper;
+import utils.DeviceUtils;
 
 /**
  * Through this fragment,we can set date
@@ -72,7 +68,7 @@ public class DatePickerFragment extends DialogFragment {
                     //Because miui can't execute ondateChanged(),so I implement that by this way.
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        if (UtilsHelper.isMiui()) {
+                        if (DeviceUtils.isMiui()) {
                             int month = datePicker.getMonth();
                             int year = datePicker.getYear();
                             int day = datePicker.getDayOfMonth();

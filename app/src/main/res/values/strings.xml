@@ -15,4 +15,5 @@
     <string name="empty_view_add">Add Record</string>
     <string name="crime_solved">Solved?</string>
     <string name="crime_delete">Delete</string>
+    <string name="take">Take</string>
 </resources>
