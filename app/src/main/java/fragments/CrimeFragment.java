@@ -4,12 +4,11 @@ package fragments;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
-import android.hardware.Camera;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -29,9 +28,10 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.example.fallb.criminalintent.CrimeCameraActivity;
 import com.example.fallb.criminalintent.R;
 
+import java.io.File;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -40,7 +40,7 @@ import java.util.UUID;
 import models.Crime;
 import models.CrimeLab;
 import models.Photo;
-import utils.PictureUtils;
+import utils.PhotoUtils;
 
 /**
  * Created by fallb on 2015/8/27.
@@ -50,10 +50,10 @@ public class CrimeFragment extends Fragment {
     public static final String EXTRA_CRIME_ID = "fragments.crime_id";
     private static final String TAG = "CrimeFragment";
     private static final String DIALOG_DATE = "date";
-    private static final String DIALOG_IMAGE = "image";
+    public static final String DIALOG_IMAGE = "image";
 
-    private static final int REQUEST_DATE = 0;
-    private static final int REQUEST_PHOTO = 1;
+    private static final int REQUEST_DATE = 100;
+    private static final int REQUEST_PHOTO = 200;
 
     private Crime mCrime;
     private EditText mTitleField;
@@ -62,6 +62,7 @@ public class CrimeFragment extends Fragment {
     private Button mDeleteButton;
     private ImageButton mPhotoButton;
     private ImageView mPhotoView;
+    private File mImageFile;
 
     public final static CrimeFragment newInstance(UUID uuid) {
         Bundle args = new Bundle();
@@ -123,7 +124,7 @@ public class CrimeFragment extends Fragment {
                 FragmentManager fm = getActivity().getSupportFragmentManager();
                 DatePickerFragment dialog = DatePickerFragment.newInstance(mCrime.getDate());
                 dialog.setTargetFragment(CrimeFragment.this, REQUEST_DATE);
-                dialog.show(fm, DIALOG_DATE);
+                dialog.show(fm, DIALOG_IMAGE);
                 return;
             }
         });
@@ -157,53 +158,51 @@ public class CrimeFragment extends Fragment {
         mPhotoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i = new Intent(getActivity(), CrimeCameraActivity.class);
-                //name photo by crime id
-                i.putExtra(EXTRA_CRIME_ID, mCrime.getId());
-                startActivityForResult(i, REQUEST_PHOTO);
+                //capture picture through a camera application
+                Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+                    if (mImageFile == null) {
+                        try {
+                            mImageFile = PhotoUtils.createImageFile(getActivity(), mCrime.getId().toString() + ".jpg");
+                        } catch (IOException e) {
+                            Log.e(TAG, "error in getting image file", e);
+                        }
+                    }
+                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(mImageFile));
+                    startActivityForResult(takePictureIntent, REQUEST_PHOTO);
+                }
             }
         });
         mPhotoView = (ImageView) v.findViewById(R.id.crime_image_view);
+        if (mCrime.getPhoto() != null) {
+            try {
+                mImageFile = PhotoUtils.createImageFile(getActivity(), mCrime.getPhoto().getFileName());
+            } catch (IOException e) {
+                Log.e(TAG, "Error in getting photo file path", e);
+            }
+            if (mImageFile != null) {
+                showPhoto();
+            }
+        }
         mPhotoView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Photo photo = mCrime.getPhoto();
-                if(photo==null){
+                if (photo == null) {
+                    Toast.makeText(getActivity(), "please take a photo first!", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 FragmentManager fm = getActivity().getSupportFragmentManager();
-                String path = getActivity().getFileStreamPath(photo.getFileName()).getAbsolutePath();
-                ImageFragment.newInstace(path).show(fm,DIALOG_IMAGE);
+                PhotoFragment.newInstance(mImageFile.getAbsolutePath()).show(fm, DIALOG_IMAGE);
             }
         });
-
-        PackageManager pm = getActivity().getPackageManager();
-        boolean hasCamera = pm.hasSystemFeature(PackageManager.FEATURE_CAMERA) ||
-                pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT) ||
-                Build.VERSION.SDK_INT < Build.VERSION_CODES.GINGERBREAD ||
-                Camera.getNumberOfCameras() > 0;
-        if (!hasCamera) {
-            mPhotoButton.setEnabled(false);
-        }
-
         return v;
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        showPhoto();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        PictureUtils.cleanImageView(mPhotoView);
-    }
-
-    public static String formatDate(Date date, String fromatString) {
-        DateFormat format = new SimpleDateFormat(fromatString);
-        return format.format(date);
+        PhotoUtils.cleanImageView(mPhotoView);
     }
 
     @Override
@@ -218,10 +217,8 @@ public class CrimeFragment extends Fragment {
                 }
                 break;
             case REQUEST_PHOTO:
-                if (requestCode == Activity.RESULT_OK) {
-                    Toast.makeText(getActivity(), "success get photo", Toast.LENGTH_SHORT).show();
-                    String fileName = mCrime.getId().toString() + ".jpg";
-                    Photo photo = new Photo(fileName);
+                if (resultCode == Activity.RESULT_OK) {
+                    Photo photo = new Photo(mCrime.getId().toString() + ".jpg");
                     mCrime.setPhoto(photo);
                     showPhoto();
                 }
@@ -231,14 +228,8 @@ public class CrimeFragment extends Fragment {
         }
     }
 
-    private void updateDate() {
-        mDateButton.setText(formatDate(mCrime.getDate(), "EEEE,LLL d,yyyy"));
-        return;
-    }
 
     //respose user click back icon
-
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -260,20 +251,24 @@ public class CrimeFragment extends Fragment {
 
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        CrimeLab.get(getActivity()).savaCrimes();
+    public static String formatDate(Date date, String fromatString) {
+        DateFormat format = new SimpleDateFormat(fromatString);
+        return format.format(date);
+    }
+
+    private void updateDate() {
+        mDateButton.setText(formatDate(mCrime.getDate(), "EEEE,LLL d,yyyy"));
+        return;
     }
 
     private void showPhoto() {
         Photo p = mCrime.getPhoto();
         BitmapDrawable b = null;
         if (p != null) {
-            String path = getActivity().getFileStreamPath(p.getFileName()).getAbsolutePath();
-            b = PictureUtils.getScaleDrawable(getActivity(), path);
+            b = PhotoUtils.getScaleDrawable(getActivity(), mImageFile.getAbsolutePath());
+            mPhotoView.setImageDrawable(b);
         }
-        mPhotoView.setImageDrawable(b);
     }
+
 
 }
