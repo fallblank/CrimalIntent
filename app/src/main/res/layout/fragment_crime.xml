@@ -82,6 +82,33 @@
         android:id="@+id/crime_delete"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:layout_marginTop="5dp"
         android:background="#ff5500"
         android:text="@string/crime_delete"/>
+
+    <Button
+        android:id="@+id/crime_suspect_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:layout_marginTop="5dp"
+        android:text="@string/crime_suspect_text"/>
+
+    <Button
+        android:id="@+id/crime_report_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:layout_marginTop="5dp"
+        android:text="@string/crime_report_text"/>
+
+    <Button
+        android:id="@+id/crime_dial_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:layout_marginTop="5dp"
+        android:text="@string/crime_dial_text"
+        />
 </LinearLayout>

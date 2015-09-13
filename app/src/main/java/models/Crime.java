@@ -16,6 +16,7 @@ public class Crime {
     public static final String JSON_SOLVED = "solved";
     public static final String JSON_DATE = "date";
     public static final String JSON_PHOTO = "photo";
+    public static final String JSON_SUSPECT = "suspect";
 
 
     private UUID mId;
@@ -23,8 +24,9 @@ public class Crime {
     private Date mDate;
     private boolean mSolved;
     private Photo mPhoto;
+    private String mSuspect;
 
-    public Crime(){
+    public Crime() {
         //use Universally Unique Identifier creating a id,which unique identity a crime event
         mId = UUID.randomUUID();
         mDate = new Date();
@@ -32,25 +34,29 @@ public class Crime {
 
     public Crime(JSONObject object) throws JSONException {
         mId = UUID.fromString(object.getString(JSON_ID));
-        if(object.has(JSON_TITLE)){
+        if (object.has(JSON_TITLE)) {
             mTitle = object.getString(JSON_TITLE);
         }
         mSolved = object.getBoolean(JSON_SOLVED);
         mDate = new Date(object.getLong(JSON_DATE));
-        if(object.has(JSON_PHOTO)){
+        if (object.has(JSON_PHOTO)) {
             mPhoto = new Photo(object.getJSONObject(JSON_PHOTO));
+        }
+        if (object.has(JSON_SUSPECT)) {
+            mSuspect = object.getString(JSON_SUSPECT);
         }
     }
 
     public JSONObject toJSON() throws JSONException {
         JSONObject object = new JSONObject();
-        object.put(JSON_ID,mId.toString());
-        object.put(JSON_TITLE,mTitle);
-        object.put(JSON_DATE,mDate.getTime());
-        object.put(JSON_SOLVED,mSolved);
-        if(mPhoto!=null){
-            object.put(JSON_PHOTO,mPhoto.toJSON());
+        object.put(JSON_ID, mId.toString());
+        object.put(JSON_TITLE, mTitle);
+        object.put(JSON_DATE, mDate.getTime());
+        object.put(JSON_SOLVED, mSolved);
+        if (mPhoto != null) {
+            object.put(JSON_PHOTO, mPhoto.toJSON());
         }
+        object.put(JSON_SUSPECT, mSuspect);
         return object;
     }
 
@@ -88,6 +94,14 @@ public class Crime {
 
     public void setPhoto(Photo photo) {
         mPhoto = photo;
+    }
+
+    public String getSuspect() {
+        return mSuspect;
+    }
+
+    public void setSuspect(String suspect) {
+        mSuspect = suspect;
     }
 
     @Override

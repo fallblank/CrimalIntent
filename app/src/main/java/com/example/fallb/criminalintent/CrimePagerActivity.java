@@ -19,7 +19,7 @@ import models.CrimeLab;
 /**
  * Created by fallb on 2015/8/29.
  */
-public class CrimePagerActivity extends FragmentActivity {
+public class CrimePagerActivity extends FragmentActivity implements CrimeFragment.Callbacks {
 
     private ViewPager mViewPager;
     private ArrayList<Crime> mCrimes;
@@ -83,5 +83,9 @@ public class CrimePagerActivity extends FragmentActivity {
 
         return;
 
+    }
+
+    @Override
+    public void onCrimeUpdated(Crime crime) {
     }
 }

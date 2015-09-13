@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">CriminalIntent</string>
-
     <string name="crime_title_hint">Input crime title</string>
     <string name="crime_title_label">TITLE</string>
     <string name="crime_details_label">DETAILS</string>
@@ -17,4 +16,16 @@
     <string name="crime_delete">Delete</string>
     <string name="take">Take</string>
     <string name="sdsda">data</string>
+    <string name="crime_report_text"> Crime Report Send</string>
+    <string name="crime_suspect_text"> Choose Suspect</string>
+    <string name="crime_report">%1$s!
+    The crime was discovered on %2$s.%3$s and %4$s
+    </string>
+    <string name="crime_report_resolved">The case is resolved</string>
+    <string name="crime_report_unresolved">The case is unresolved</string>
+    <string name="crime_report_suspect">The suspect is %s</string>
+    <string name="crime_report_no_suspect">There is no suspect</string>
+    <string name="crime_report_subject">CrimalIntent Crime Report</string>
+    <string name="send_report">Send crime report via</string>
+    <string name="crime_dial_text">dial</string>
 </resources>

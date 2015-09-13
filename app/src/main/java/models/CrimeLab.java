@@ -4,9 +4,13 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.UUID;
+
+import utils.PhotoUtils;
 
 /**
  * Created by fallb on 2015/8/28.
@@ -62,6 +66,14 @@ public class CrimeLab {
     public boolean removeCrime(UUID id){
         Crime crime = getCrime(id);
         if(crime!=null){
+            try {
+                File file = PhotoUtils.getImageFile(mAppContext,crime.getPhoto().getFileName());
+                if(file!=null && file.exists()){
+                    file.delete();
+                }
+            } catch (Exception e) {
+                Log.e(TAG,"error in getting image location",e);
+            }
             mCrimes.remove(crime);
             return true;
         }

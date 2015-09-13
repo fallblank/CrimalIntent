@@ -1,6 +1,7 @@
 package utils;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -22,10 +23,10 @@ public class PhotoUtils {
 
     private static final String TAG = "PhotoUtils";
 
-    public static File createImageFile(Activity activity, String fileName) throws IOException {
+    public static File getImageFile(Context context,String fileName) throws IOException {
         File storageDir = new File(
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-                activity.getString(R.string.app_name));
+                context.getString(R.string.app_name));
         Log.d(TAG, storageDir.getAbsolutePath());
         if (!storageDir.exists()) {
             if (!storageDir.mkdirs()) {
@@ -34,7 +35,7 @@ public class PhotoUtils {
             }
         }
 
-        File imageFile = new File(storageDir, fileName);
+        File imageFile = new File(storageDir, fileName+".jpg");
         if (!imageFile.exists()) {
             imageFile.createNewFile();
         }
